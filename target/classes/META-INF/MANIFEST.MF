@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Built-By: Admin
+Build-Jdk: 13
+Main-Class: com.moimus.casestudy.App
+Created-By: Maven Integration for Eclipse
+
