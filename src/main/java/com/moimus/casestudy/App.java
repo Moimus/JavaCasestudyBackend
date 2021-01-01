@@ -21,6 +21,7 @@ public class App {
 		System.out.println("Starting...");
 		Spark.port(8080);
 		Spark.get("/hello", (req, res) -> API.boilGet(req, res));
+		Spark.get("/imageAPI", (req, res) -> API.boilImageAPIGet(req, res));
 		Spark.post("/hello", (req, res) -> API.boilPost(req, res));
 		Spark.put("/hello", (req, res) -> API.boilPut(req, res));
 		Spark.delete("/hello", (req, res) -> API.boilDelete(req, res));

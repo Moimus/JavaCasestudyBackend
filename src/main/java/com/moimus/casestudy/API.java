@@ -1,7 +1,12 @@
 package com.moimus.casestudy;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 
 import org.sql2o.Connection;
 import org.sql2o.Query;
@@ -71,6 +76,20 @@ public class API {
 			return result;
 		} else {
 			return false;
+		}
+	}
+	
+	public static byte[] boilImageAPIGet(Request req, Response res)
+	{
+		if (req.queryParams("gtin") != null) {
+			List<VoucherModel> result = getVoucherByGTIN(req.queryParams("gtin"));
+			BufferedImage bufferedQRCode = result.get(0).toQR();
+			res.header("Content-Type", "image/jpeg");
+			return serveBufferedImage(bufferedQRCode);
+		}
+		else
+		{
+			return null;
 		}
 	}
 
@@ -153,5 +172,17 @@ public class API {
 			App.logger.error(e.getMessage());
 			return false;
 		}
+	}
+
+	private static byte[] serveBufferedImage(BufferedImage in) {
+		byte[] out = null;
+		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+			ImageIO.write(in, "jpg", outputStream);
+			outputStream.flush();
+			out = outputStream.toByteArray();
+		} catch (IOException e) {
+			App.logger.error("Serving Image Failed");
+		}
+		return out;
 	}
 }
