@@ -23,6 +23,7 @@ public class App {
 		Spark.get("/hello", (req, res) -> API.boilGet(req, res));
 		Spark.post("/hello", (req, res) -> API.boilPost(req, res));
 		Spark.put("/hello", (req, res) -> API.boilPut(req, res));
+		Spark.delete("/hello", (req, res) -> API.boilDelete(req, res));
 		logger.info("Example log from {}", App.class.getSimpleName());
 	}
 }

@@ -65,6 +65,15 @@ public class API {
 		}
 	}
 
+	public static Boolean boilDelete(Request req, Response res) {
+		if (req.queryParams("gtin") != null) {
+			Boolean result = deleteVoucherByGTIN(req.queryParams("gtin"));
+			return result;
+		} else {
+			return false;
+		}
+	}
+
 	private static List<VoucherModel> getVoucherByGTIN(String voucherGtin) {
 		try (Connection con = sql2o.open()) {
 			final String query = "SELECT * FROM voucher WHERE gtin =:voucherGtin";
@@ -92,7 +101,7 @@ public class API {
 	}
 
 	private static Boolean insertNewVoucher(VoucherModel newVoucher) {
-		try (Connection con = sql2o.open()) {
+		try (Connection con = sql2o.beginTransaction()) {
 			final String query = "INSERT INTO voucher (gtin, campaignStart, campaignEnd, discount, active, campaignName) "
 					+ "values(:gtin, :campaignStart, :campaignEnd, :discount, :active, :campaignName)";
 			Query q = con.createQuery(query);
@@ -103,6 +112,7 @@ public class API {
 			q.addParameter("active", newVoucher.active);
 			q.addParameter("campaignName", newVoucher.campaignName);
 			q.executeUpdate();
+			con.commit();
 			return true;
 		} catch (Exception e) {
 			App.logger.error(e.getMessage());
@@ -111,7 +121,7 @@ public class API {
 	}
 
 	private static Boolean updateVoucher(VoucherModel updatedVoucher) {
-		try (Connection con = sql2o.open()) {
+		try (Connection con = sql2o.beginTransaction()) {
 			final String query = "UPDATE voucher"
 					+ " SET gtin = :gtin, campaignStart = :campaignStart, campaignEnd = :campaignEnd, discount = :discount, active = :active, campaignName = :campaignName"
 					+ " WHERE gtin = :gtin";
@@ -123,6 +133,21 @@ public class API {
 			q.addParameter("active", updatedVoucher.active);
 			q.addParameter("campaignName", updatedVoucher.campaignName);
 			q.executeUpdate();
+			con.commit();
+			return true;
+		} catch (Exception e) {
+			App.logger.error(e.getMessage());
+			return false;
+		}
+	}
+
+	private static Boolean deleteVoucherByGTIN(String voucherGtin) {
+		try (Connection con = sql2o.beginTransaction()) {
+			final String query = "DELETE FROM voucher WHERE gtin = :gtin";
+			Query q = con.createQuery(query);
+			q.addParameter("gtin", voucherGtin);
+			q.executeUpdate();
+			con.commit();
 			return true;
 		} catch (Exception e) {
 			App.logger.error(e.getMessage());
